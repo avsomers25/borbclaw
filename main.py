@@ -16,7 +16,7 @@ filename = sct.shot()
 print(filename)  
 
 def find_cheese(img_rgb):
-    img_rgb = cv2.imread("test_1.png")[200:475, 0:1325]
+    img_rgb = (img_rgb).astype(np.uint8)[:,:,:3]
 
     lower_yellow = np.array([25, 150, 0])
     upper_yellow = np.array([30, 255, 255])
@@ -34,6 +34,7 @@ def find_cheese(img_rgb):
     nClusters = 2
     ret,label,center=cv2.kmeans(Z,nClusters,None,criteria,10,cv2.KMEANS_RANDOM_CENTERS)
 
+
     return center
 
 def find_claw(sct_img_np):
@@ -41,21 +42,29 @@ def find_claw(sct_img_np):
     w, h = template.shape[:-1]
 
     res = cv2.matchTemplate(find_claw_img, template, cv2.TM_CCOEFF_NORMED)
+
+
+
     threshold = .8
     loc = np.where(res >= threshold)
+    for pt in zip(*loc[::-1]):  # Switch columns and rows
+        return pt[0] + 10
 
-    try:
-        return sum(v[0] for v in loc) / float(len(loc))
-    except:
-        return 0 
+
+running = True
+
+error = 10
+
+sct_img = sct.grab(bounding_box)
+
+sct_img_np = np.array(sct_img)
+
+centers = find_cheese(sct_img_np)
+ 
+
+while running:
     
-
-
-
-while True:
     sct_img = sct.grab(bounding_box)
-
-    centers = find_cheese(sct_img)
 
     sct_img_np = np.array(sct_img)
 
@@ -66,13 +75,16 @@ while True:
         print(x)
         print(claw_loc)
         print("____")
-        if(x == claw_loc):
+
+        if x < claw_loc + error and x > claw_loc - error:
             print("OVER") 
-            break
+            running = False
+
 
 pyautogui.press('space')    
+print(click)
 
 
 
 
-
+ 
