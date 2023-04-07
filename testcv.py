@@ -38,14 +38,17 @@ def find_cheese(img_rgb):
     return center
 
 def find_claw(sct_img_np):
-    find_claw_img = (sct_img_np[0:50, 0:1325]).astype(np.uint8)[:,:,:3]
+    find_claw_img = (sct_img_np[10:60, 0:1325]).astype(np.uint8)[:,:,:3]
     w, h = template.shape[:-1]
 
     res = cv2.matchTemplate(find_claw_img, template, cv2.TM_CCOEFF_NORMED)
 
+    cv2.imshow('image',find_claw_img)
+    cv2.waitKey(0)
+    cv2.imshow('image',res)
+    cv2.waitKey(0)
 
-
-    threshold = .8
+    threshold = .75
     loc = np.where(res >= threshold)
     for pt in zip(*loc[::-1]):  # Switch columns and rows
         return pt[0] + 10

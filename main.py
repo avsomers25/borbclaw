@@ -32,13 +32,16 @@ def find_cheese(img_rgb):
     Z = np.column_stack((X,Y)).astype(np.float32)
 
     nClusters = 2
-    ret,label,center=cv2.kmeans(Z,nClusters,None,criteria,10,cv2.KMEANS_RANDOM_CENTERS)
+    try:
+        ret,label,center=cv2.kmeans(Z,nClusters,None,criteria,10,cv2.KMEANS_RANDOM_CENTERS)
+    except:
+        return [(-1, -1), (-1,-1)]
 
 
     return center
 
 def find_claw(sct_img_np):
-    find_claw_img = (sct_img_np[0:50, 0:1325]).astype(np.uint8)[:,:,:3]
+    find_claw_img = (sct_img_np[10:60, 0:1325]).astype(np.uint8)[:,:,:3]
     w, h = template.shape[:-1]
 
     res = cv2.matchTemplate(find_claw_img, template, cv2.TM_CCOEFF_NORMED)
@@ -48,42 +51,58 @@ def find_claw(sct_img_np):
     threshold = .8
     loc = np.where(res >= threshold)
     for pt in zip(*loc[::-1]):  # Switch columns and rows
-        return pt[0] + 10
+        return pt[0] 
 
 
-running = True
+def claw_loop():
+    error = 10
 
-error = 10
+    while True:
+        sct_img = sct.grab(bounding_box)
 
-sct_img = sct.grab(bounding_box)
+        sct_img_np = np.array(sct_img)
 
-sct_img_np = np.array(sct_img)
+        claw_loc = find_claw(sct_img_np)
 
-centers = find_cheese(sct_img_np)
- 
+        if(claw_loc == None):
+            claw_loc = -1
 
-while running:
-    
+        for x,y in centers:
+            print("____")
+            print(x)
+            print(claw_loc)
+            print("____")
+
+            if x < claw_loc + error and x > claw_loc :
+                pyautogui.press('space') 
+                print("OVER") 
+                return
+
+
+while True:
+    print("wait") 
+    time.sleep(5)
+    print("go")
+
+    pyautogui.press('space')  
+
     sct_img = sct.grab(bounding_box)
 
     sct_img_np = np.array(sct_img)
 
-    claw_loc = find_claw(sct_img_np)
+    centers = find_cheese(sct_img_np)
 
-    for x,y in centers:
-        print("____")
-        print(x)
-        print(claw_loc)
-        print("____")
+    if(centers[0][0] == -1):
+        print("no cheese")
+        pyautogui.press('space')   
+    else:
+        claw_loop()
 
-        if x < claw_loc + error and x > claw_loc - error:
-            print("OVER") 
-            running = False
+ 
+    
 
 
-pyautogui.press('space')    
-print(click)
-
+ 
 
 
 
