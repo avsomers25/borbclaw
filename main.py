@@ -55,7 +55,7 @@ def find_claw(sct_img_np):
 
 
 def claw_loop():
-    error = 10
+    error = 2
 
     while True:
         sct_img = sct.grab(bounding_box)
@@ -67,16 +67,13 @@ def claw_loop():
         if(claw_loc == None):
             claw_loc = -1
 
-        for x,y in centers:
-            print("____")
-            print(x)
-            print(claw_loc)
-            print("____")
+        x,y = centers[0]
 
-            if x < claw_loc + error and x > claw_loc :
-                pyautogui.press('space') 
-                print("OVER") 
-                return
+
+        if x < claw_loc + error and x > claw_loc - error :
+            pyautogui.press('space') 
+            print("OVER") 
+            return
 
 
 while True:
