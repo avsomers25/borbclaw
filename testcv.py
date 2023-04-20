@@ -48,6 +48,9 @@ def find_claw(sct_img_np):
     cv2.imshow('image',res)
     cv2.waitKey(0)
 
+    cv2.imwrite('find_claw_img.png', find_claw_img)
+    cv2.imwrite('res.png', res)
+
     threshold = .75
     loc = np.where(res >= threshold)
     for pt in zip(*loc[::-1]):  # Switch columns and rows
@@ -56,6 +59,7 @@ def find_claw(sct_img_np):
  
     
 
+time.sleep(5)
 
 error = 10
 
@@ -64,7 +68,7 @@ sct_img = sct.grab(bounding_box)
 
 sct_img_np = np.array(sct_img)
 
-centers = find_cheese(sct_img_np)
+#centers = find_cheese(sct_img_np)
 
 claw_loc = find_claw(sct_img_np)
 

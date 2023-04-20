@@ -21,8 +21,6 @@ def find_cheese(img_rgb):
     lower_yellow = np.array([25, 150, 0])
     upper_yellow = np.array([30, 255, 255])
     mask = cv2.inRange(img_rgb, lower_yellow, upper_yellow)
-    res = cv2.bitwise_and(img_rgb, img_rgb, mask=mask)
-
 
     points = cv2.findNonZero(mask)
 
@@ -46,31 +44,43 @@ def find_claw(sct_img_np):
 
     res = cv2.matchTemplate(find_claw_img, template, cv2.TM_CCOEFF_NORMED)
 
-
-
-    threshold = .8
+    threshold = .85
     loc = np.where(res >= threshold)
     for pt in zip(*loc[::-1]):  # Switch columns and rows
         return pt[0] 
 
 
+lower_grey = np.array([130, 130, 130])
+upper_grey = np.array([255, 255, 255])
+
+def find_claw_2(sct_img_np):
+    find_claw_img = (sct_img_np[10:30, 0:1325]).astype(np.uint8)[:,:,:3]
+
+    mask = cv2.inRange(find_claw_img, lower_grey, upper_grey)
+    res = cv2.bitwise_and(find_claw_img, find_claw_img, mask=mask)
+
+    points = cv2.findNonZero(mask)
+
+    try:
+        return points[0][0][0]
+    except TypeError:
+        return -1
+
+
+
 def claw_loop():
     error = 2
+    x,y = centers[0]
+    x = int(x)
 
     while True:
         sct_img = sct.grab(bounding_box)
 
-        sct_img_np = np.array(sct_img)
+        sct_img_np = np.array(sct_img) 
 
-        claw_loc = find_claw(sct_img_np)
+        claw_loc = find_claw_2(sct_img_np)
 
-        if(claw_loc == None):
-            claw_loc = -1
-
-        x,y = centers[0]
-
-
-        if x < claw_loc + error and x > claw_loc - error :
+        if x > claw_loc - error and x < claw_loc + error :
             pyautogui.press('space') 
             print("OVER") 
             return
